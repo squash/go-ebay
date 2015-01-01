@@ -4,7 +4,8 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/heatxsink/go-httprequest"
+	"io/ioutil"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -52,21 +53,49 @@ type Error struct {
 	SubDomain string `xml:"subdomain"`
 }
 
-type EBay struct {
+type Session struct {
 	ApplicationId string
-	HttpRequest   *httprequest.HttpRequest
+	//HttpRequest   *httprequest.HttpRequest
 }
 
 type getUrl func(string, string, int) (string, error)
 
-func New(application_id string) *EBay {
-	e := EBay{}
+func New(application_id string) *Session {
+	e := Session{}
 	e.ApplicationId = application_id
-	e.HttpRequest = httprequest.NewWithDefaults()
 	return &e
 }
 
-func (e *EBay) build_sold_url(global_id string, keywords string, entries_per_page int) (string, error) {
+var transport http.RoundTripper
+
+func getTransport() http.RoundTripper {
+	if transport != nil {
+		return transport
+	}
+	return http.DefaultTransport
+}
+
+func SetTransport(t http.RoundTripper) {
+	transport = t
+}
+
+func get(url string, headers map[string]string) (resp *http.Response, error error) {
+	client := &http.Client{Transport: getTransport()}
+	req, _ := http.NewRequest("GET", url, nil)
+
+	if headers != nil {
+		for key, val := range headers {
+
+			req.Header.Set(key, val)
+		}
+	}
+
+	response, error := client.Do(req)
+
+	return response, error
+}
+
+func (e *Session) build_sold_url(global_id string, keywords string, entries_per_page int) (string, error) {
 	filters := url.Values{}
 	filters.Add("itemFilter(0).name", "Condition")
 	filters.Add("itemFilter(0).value(0)", "Used")
@@ -76,7 +105,7 @@ func (e *EBay) build_sold_url(global_id string, keywords string, entries_per_pag
 	return e.build_url(global_id, keywords, "findCompletedItems", entries_per_page, filters)
 }
 
-func (e *EBay) build_search_url(global_id string, keywords string, entries_per_page int) (string, error) {
+func (e *Session) build_search_url(global_id string, keywords string, entries_per_page int) (string, error) {
 	filters := url.Values{}
 	filters.Add("itemFilter(0).name", "ListingType")
 	filters.Add("itemFilter(0).value(0)", "FixedPrice")
@@ -85,7 +114,7 @@ func (e *EBay) build_search_url(global_id string, keywords string, entries_per_p
 	return e.build_url(global_id, keywords, "findItemsByKeywords", entries_per_page, filters)
 }
 
-func (e *EBay) build_url(global_id string, keywords string, operationName string, entries_per_page int, filters url.Values) (string, error) {
+func (e *Session) build_url(global_id string, keywords string, operationName string, entries_per_page int, filters url.Values) (string, error) {
 	var u *url.URL
 	u, err := url.Parse("http://svcs.ebay.com/services/search/FindingService/v1")
 	if err != nil {
@@ -109,7 +138,7 @@ func (e *EBay) build_url(global_id string, keywords string, operationName string
 	return u.String(), err
 }
 
-func (e *EBay) findItems(global_id string, keywords string, entries_per_page int, getUrl getUrl) (FindItemsResponse, error) {
+func (e *Session) findItems(global_id string, keywords string, entries_per_page int, getUrl getUrl) (FindItemsResponse, error) {
 	var response FindItemsResponse
 	url, err := getUrl(global_id, keywords, entries_per_page)
 	if err != nil {
@@ -117,11 +146,15 @@ func (e *EBay) findItems(global_id string, keywords string, entries_per_page int
 	}
 	headers := make(map[string]string)
 	headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11"
-	body, status_code, err := e.HttpRequest.Get(url, headers)
+	httpResp, err := get(url, headers)
 	if err != nil {
 		return response, err
 	}
-	if status_code != 200 {
+
+	defer httpResp.Body.Close()
+	body, err := ioutil.ReadAll(httpResp.Body)
+
+	if httpResp.StatusCode != 200 {
 		var em ErrorMessage
 		err = xml.Unmarshal([]byte(body), &em)
 		if err != nil {
@@ -137,11 +170,11 @@ func (e *EBay) findItems(global_id string, keywords string, entries_per_page int
 	return response, err
 }
 
-func (e *EBay) FindItemsByKeywords(global_id string, keywords string, entries_per_page int) (FindItemsResponse, error) {
+func (e *Session) FindItemsByKeywords(global_id string, keywords string, entries_per_page int) (FindItemsResponse, error) {
 	return e.findItems(global_id, keywords, entries_per_page, e.build_search_url)
 }
 
-func (e *EBay) FindSoldItems(global_id string, keywords string, entries_per_page int) (FindItemsResponse, error) {
+func (e *Session) FindSoldItems(global_id string, keywords string, entries_per_page int) (FindItemsResponse, error) {
 	return e.findItems(global_id, keywords, entries_per_page, e.build_sold_url)
 }
 
