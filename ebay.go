@@ -82,14 +82,11 @@ func SetTransport(t http.RoundTripper) {
 func get(url string, headers map[string]string) (resp *http.Response, error error) {
 	client := &http.Client{Transport: getTransport()}
 	req, _ := http.NewRequest("GET", url, nil)
-
 	if headers != nil {
 		for key, val := range headers {
-
 			req.Header.Set(key, val)
 		}
 	}
-
 	response, error := client.Do(req)
 
 	return response, error
