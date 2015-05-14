@@ -5,14 +5,28 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	// "reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	test_application_id         = "your_application_id_here"
+	testApplicationID = "your_application_id_here"
+
+	emptySoldItemsResponse = `<?xml version='1.0' encoding='UTF-8'?>
+<findCompletedItemsResponse xmlns="http://www.ebay.com/marketplace/search/v1/services">
+   <ack>Success</ack>
+   <version>1.13.0</version>
+   <timestamp>2015-05-14T02:30:45.558Z</timestamp>
+   <searchResult count="0"/>
+   <paginationOutput>
+      <pageNumber>0</pageNumber>
+      <entriesPerPage>100</entriesPerPage>
+      <totalPages>0</totalPages>
+      <totalEntries>0</totalEntries>
+   </paginationOutput>
+</findCompletedItemsResponse>`
+
 	successfulSoldItemsResponse = `<findCompletedItemsResponse xmlns="http://www.ebay.com/marketplace/search/v1/services">
    <ack>Success</ack>
    <version>1.11.0</version>
@@ -120,7 +134,7 @@ var (
 
 // func TestFindItemsByKeywords(t *testing.T) {
 // 	fmt.Println("ebay.FindItemsByKeywords")
-// 	e := New(test_application_id)
+// 	e := New(testApplicationID)
 // 	response, err := e.FindItemsByKeywords(GLOBAL_ID_EBAY_US, "DJM 900, DJM 850", 10)
 // 	if err != nil {
 // 		t.Errorf("ERROR: ", err)
@@ -142,7 +156,7 @@ var (
 // 	}
 // }
 
-func setupServerWithResponse(response string) *httptest.Server {
+func setupServerWithSuccessResponse(response string) *httptest.Server {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "application/xml")
@@ -158,12 +172,10 @@ func setupServerWithResponse(response string) *httptest.Server {
 }
 
 func Test_FindSoldItems_ItemsReturned_Success(t *testing.T) {
-	// Test server that always responds with 200 code, and specific payload
-	server := setupServerWithResponse(successfulSoldItemsResponse)
+	server := setupServerWithSuccessResponse(successfulSoldItemsResponse)
 	defer server.Close()
 
-	// Test the method!
-	s := Session{test_application_id}
+	s := Session{testApplicationID}
 	resp, e := s.FindSoldItems(GLOBAL_ID_EBAY_US, "something", 100)
 	assert.Nil(t, e)
 	assert.Equal(t, 2, len(resp.Items))
@@ -171,12 +183,12 @@ func Test_FindSoldItems_ItemsReturned_Success(t *testing.T) {
 	assert.Equal(t, "Garmin nuvi 1300 Automotive GPS Receiver", resp.Items[1].Title)
 }
 
-// func Test_FindSoldItems_NoItemsReturned_Success(t *testing.T) {
-// 	server := setupServerWithResponse(emptySoldItemsResponse)
-// 	defer server.Close()
+func Test_FindSoldItems_NoItemsReturned_Success(t *testing.T) {
+	server := setupServerWithSuccessResponse(emptySoldItemsResponse)
+	defer server.Close()
 
-// 	s := Session{test_application_id}
-// 	resp, e := s.FindSoldItems(GLOBAL_ID_EBAY_US, "something", 100)
-// 	assert.Nil(t, e)
-// 	assert.Equal(t, 0, len(resp.Items))
-// }
+	s := Session{testApplicationID}
+	resp, e := s.FindSoldItems(GLOBAL_ID_EBAY_US, "something", 100)
+	assert.Nil(t, e)
+	assert.Equal(t, 0, len(resp.Items))
+}
