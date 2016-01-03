@@ -12,15 +12,21 @@ import (
 )
 
 const (
-	GLOBAL_ID_EBAY_US = "EBAY-US"
-	GLOBAL_ID_EBAY_FR = "EBAY-FR"
-	GLOBAL_ID_EBAY_DE = "EBAY-DE"
-	GLOBAL_ID_EBAY_IT = "EBAY-IT"
-	GLOBAL_ID_EBAY_ES = "EBAY-ES"
+	// GlobalIDEbayUS is the global eBay ID for US
+	GlobalIDEbayUS = "EBAY-US"
+	// GlobalIDEbayFR is the global eBay ID for France
+	GlobalIDEbayFR = "EBAY-FR"
+	// GlobalIDEbayDE is the global eBay ID for Germany
+	GlobalIDEbayDE = "EBAY-DE"
+	// GlobalIDEbayIT is the global eBay ID for Italy
+	GlobalIDEbayIT = "EBAY-IT"
+	// GlobalIDEbayES is the global eBay ID for Spain
+	GlobalIDEbayES = "EBAY-ES"
 )
 
+// Item is an eBay auction/sale item
 type Item struct {
-	ItemId        string    `xml:"itemId"`
+	ItemID        string    `xml:"itemId"`
 	Title         string    `xml:"title"`
 	Location      string    `xml:"location"`
 	CurrentPrice  float64   `xml:"sellingStatus>currentPrice"`
@@ -33,19 +39,22 @@ type Item struct {
 	EndTime       time.Time `xml:"listingInfo>endTime"`
 }
 
+// FindItemsResponse is a response to a findItemsByKeywords search
 type FindItemsResponse struct {
-	XmlName   xml.Name `xml:"findItemsByKeywordsResponse"`
+	Name      xml.Name `xml:"findItemsByKeywordsResponse"`
 	Items     []Item   `xml:"searchResult>item"`
 	Timestamp string   `xml:"timestamp"`
 }
 
+// ErrorMessage is an eBay error message
 type ErrorMessage struct {
-	XmlName xml.Name `xml:"errorMessage"`
-	Error   Error    `xml:"error"`
+	Name  xml.Name `xml:"errorMessage"`
+	Error Error    `xml:"error"`
 }
 
+// Error is an eBay error response
 type Error struct {
-	ErrorId   string `xml:"errorId"`
+	ErrorID   string `xml:"errorId"`
 	Domain    string `xml:"domain"`
 	Severity  string `xml:"severity"`
 	Category  string `xml:"category"`
@@ -53,13 +62,14 @@ type Error struct {
 	SubDomain string `xml:"subdomain"`
 }
 
+// Session is an eBay searches session
 type Session struct {
 	ApplicationID string
-	//HttpRequest   *httprequest.HttpRequest
 }
 
 type getURL func(string, string, int) (string, error)
 
+//New creates a new eBay Session
 func New(applicationID string) *Session {
 	e := Session{}
 	e.ApplicationID = applicationID
@@ -75,6 +85,7 @@ func getTransport() http.RoundTripper {
 	return http.DefaultTransport
 }
 
+// SetTransport overrides the HTTP transport for test purposes
 func SetTransport(t http.RoundTripper) {
 	transport = t
 }
