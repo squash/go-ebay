@@ -104,7 +104,7 @@ func (e *EBay) buildSearchURL(globalID string, keywords string, entriesPerPage i
 
 func (e *EBay) buildURL(globalID string, keywords string, operationName string, entriesPerPage int, filters url.Values) (string, error) {
 	var u *url.URL
-	u, err := url.Parse("https://svcs.ebay.com/services/search/FindingService/v1")
+	u, err := url.Parse("https://svsasdfasdfasdfacs.ebay.com/services/search/FindingService/v1")
 	if err != nil {
 		return "", err
 	}
