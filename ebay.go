@@ -45,9 +45,15 @@ type Item struct {
 
 // FindItemsResponse from EBay
 type FindItemsResponse struct {
-	XMLName   xml.Name `xml:"findItemsByKeywordsResponse"`
-	Items     []Item   `xml:"searchResult>item"`
-	Timestamp string   `xml:"timestamp"`
+	XMLName          xml.Name `xml:"findItemsByKeywordsResponse"`
+	Items            []Item   `xml:"searchResult>item"`
+	Timestamp        string   `xml:"timestamp"`
+	PaginationOutput struct {
+		PageNumber     string `xml:"pageNumber"`
+		EntriesPerPage string `xml:"entriesPerPage"`
+		TotalPages     string `xml:"totalPages"`
+		TotalEntries   string `xml:"totalEntries"`
+	} `xml:"paginationOutput"`
 }
 
 // FindCompletedItemsResponse from EBay
