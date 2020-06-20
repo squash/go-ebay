@@ -35,10 +35,12 @@ type Item struct {
 		ConditionId          string `xml:"conditionId"`
 		ConditionDisplayName string `xml:"conditionDisplayName"`
 	} `xml:"condition"`
-	PostalCode string    `xml:"postalCode"`
-	Country    string    `xml:"country"`
-	Site       string    `xml:"globalId"`
-	EndTime    time.Time `xml:"listingInfo>endTime"`
+	PostalCode    string    `xml:"postalCode"`
+	PaymentMethod []string  `xml:"paymentMethod"`
+	AutoPay       string    `xml:"autoPay"`
+	Country       string    `xml:"country"`
+	Site          string    `xml:"globalId"`
+	EndTime       time.Time `xml:"listingInfo>endTime"`
 }
 
 // FindItemsResponse from EBay
