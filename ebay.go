@@ -20,17 +20,25 @@ const (
 
 // Item for sale on EBay
 type Item struct {
-	ItemID        string    `xml:"itemId"`
-	Title         string    `xml:"title"`
-	Location      string    `xml:"location"`
-	CurrentPrice  float64   `xml:"sellingStatus>currentPrice"`
-	ShippingPrice float64   `xml:"shippingInfo>shippingServiceCost"`
-	BinPrice      float64   `xml:"listingInfo>buyItNowPrice"`
-	ShipsTo       []string  `xml:"shippingInfo>shipToLocations"`
-	ListingURL    string    `xml:"viewItemURL"`
-	ImageURL      string    `xml:"galleryURL"`
-	Site          string    `xml:"globalId"`
-	EndTime       time.Time `xml:"listingInfo>endTime"`
+	ItemID                string   `xml:"itemId"`
+	Title                 string   `xml:"title"`
+	Location              string   `xml:"location"`
+	CurrentPrice          float64  `xml:"sellingStatus>currentPrice"`
+	ShippingPrice         float64  `xml:"shippingInfo>shippingServiceCost"`
+	BinPrice              float64  `xml:"listingInfo>buyItNowPrice"`
+	ShipsTo               []string `xml:"shippingInfo>shipToLocations"`
+	ListingURL            string   `xml:"viewItemURL"`
+	ImageURL              string   `xml:"galleryURL"`
+	GalleryPlusPictureURL string   `xml:"galleryPlusPictureURL"`
+	Condition             struct {
+		Text                 string `xml:",chardata"`
+		ConditionId          string `xml:"conditionId"`
+		ConditionDisplayName string `xml:"conditionDisplayName"`
+	} `xml:"condition"`
+	PostalCode string    `xml:"postalCode"`
+	Country    string    `xml:"country"`
+	Site       string    `xml:"globalId"`
+	EndTime    time.Time `xml:"listingInfo>endTime"`
 }
 
 // FindItemsResponse from EBay
