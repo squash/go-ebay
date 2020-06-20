@@ -90,17 +90,17 @@ func New(applicationID string) *EBay {
 	return &e
 }
 
-func (e *EBay) buildSoldURL(globalID string, keywords string, entriesPerPage int) (string, error) {
+func (e *EBay) buildSoldURL(globalID string, keywords string, pageNumber int, entriesPerPage int) (string, error) {
 	filters := url.Values{}
 	filters.Add("itemFilter(0).name", "Condition")
 	filters.Add("itemFilter(0).value(0)", "Used")
 	filters.Add("itemFilter(0).value(1)", "Unspecified")
 	filters.Add("itemFilter(1).name", "SoldItemsOnly")
 	filters.Add("itemFilter(1).value(0)", "true")
-	return e.buildURL(globalID, keywords, "findCompletedItems", entriesPerPage, filters)
+	return e.buildURL(globalID, keywords, "findCompletedItems", pageNumber, entriesPerPage, filters)
 }
 
-func (e *EBay) buildSearchURL(globalID string, keywords string, entriesPerPage int, binOnly bool) (string, error) {
+func (e *EBay) buildSearchURL(globalID string, keywords string, pageNumber int, entriesPerPage int, binOnly bool) (string, error) {
 	filters := url.Values{}
 	filters.Add("itemFilter(0).name", "ListingType")
 	filters.Add("itemFilter(0).value(0)", "AuctionWithBIN")
@@ -109,10 +109,10 @@ func (e *EBay) buildSearchURL(globalID string, keywords string, entriesPerPage i
 		filters.Add("itemFilter(0).value(1)", "FixedPrice")
 		filters.Add("itemFilter(0).value(2)", "Auction")
 	}
-	return e.buildURL(globalID, keywords, "findItemsByKeywords", entriesPerPage, filters)
+	return e.buildURL(globalID, keywords, "findItemsByKeywords", pageNumber, entriesPerPage, filters)
 }
 
-func (e *EBay) buildURL(globalID string, keywords string, operationName string, entriesPerPage int, filters url.Values) (string, error) {
+func (e *EBay) buildURL(globalID string, keywords string, operationName string, pageNumber int, entriesPerPage int, filters url.Values) (string, error) {
 	var u *url.URL
 	u, err := url.Parse("https://svcs.ebay.com/services/search/FindingService/v1")
 	if err != nil {
@@ -126,6 +126,7 @@ func (e *EBay) buildURL(globalID string, keywords string, operationName string, 
 	params.Add("RESPONSE-DATA-FORMAT", "XML")
 	params.Add("REST-PAYLOAD", "")
 	params.Add("keywords", keywords)
+	params.Add("paginationInput.pageNumber", strconv.Itoa(pageNumber))
 	params.Add("paginationInput.entriesPerPage", strconv.Itoa(entriesPerPage))
 	for key := range filters {
 		for _, val := range filters[key] {
@@ -161,9 +162,9 @@ func (e *EBay) findItems(globalID string, keywords string, entriesPerPage int, u
 }
 
 // FindItemsByKeywords returns items matching the keyword search terms
-func (e *EBay) FindItemsByKeywords(globalID string, keywords string, entriesPerPage int, binOnly bool) (FindItemsResponse, error) {
+func (e *EBay) FindItemsByKeywords(globalID string, keywords string, pageNumber int, entriesPerPage int, binOnly bool) (FindItemsResponse, error) {
 	var response FindItemsResponse
-	url, err := e.buildSearchURL(globalID, keywords, entriesPerPage, binOnly)
+	url, err := e.buildSearchURL(globalID, keywords, pageNumber, entriesPerPage, binOnly)
 	if err != nil {
 		var response FindItemsResponse
 		return response, err
@@ -190,9 +191,9 @@ func (e *EBay) FindItemsByKeywords(globalID string, keywords string, entriesPerP
 }
 
 // FindSoldItems returns sold items by keyword
-func (e *EBay) FindSoldItems(globalID string, keywords string, entriesPerPage int) (FindCompletedItemsResponse, error) {
+func (e *EBay) FindSoldItems(globalID string, keywords string, pageNumber int, entriesPerPage int) (FindCompletedItemsResponse, error) {
 	var response FindCompletedItemsResponse
-	url, err := e.buildSoldURL(globalID, keywords, entriesPerPage)
+	url, err := e.buildSoldURL(globalID, keywords, pageNumber, entriesPerPage)
 	if err != nil {
 		return response, err
 	}
