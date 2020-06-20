@@ -1,4 +1,4 @@
-module github.com/rmpacheco/go-ebay
+module github.com/luclu7/go-ebay
 
 go 1.13
 
