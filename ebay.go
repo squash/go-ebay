@@ -106,7 +106,7 @@ func (e *EBay) buildSoldURL(globalID string, keywords string, pageNumber int, en
 	return e.buildURL(globalID, keywords, "findCompletedItems", pageNumber, entriesPerPage, filters)
 }
 
-func (e *EBay) buildSearchURL(globalID string, keywords string, pageNumber int, entriesPerPage int, binOnly bool) (string, error) {
+func (e *EBay) BuildSearchURL(globalID string, keywords string, pageNumber int, entriesPerPage int, binOnly bool) (string, error) {
 	filters := url.Values{}
 	filters.Add("itemFilter(0).name", "ListingType")
 	filters.Add("itemFilter(0).value(0)", "AuctionWithBIN")
@@ -118,7 +118,7 @@ func (e *EBay) buildSearchURL(globalID string, keywords string, pageNumber int, 
 	return e.buildURL(globalID, keywords, "findItemsByKeywords", pageNumber, entriesPerPage, filters)
 }
 
-func (e *EBay) buildURL(globalID string, keywords string, operationName string, pageNumber int, entriesPerPage int, filters url.Values) (string, error) {
+func (e *EBay) BuildURL(globalID string, keywords string, operationName string, pageNumber int, entriesPerPage int, filters url.Values) (string, error) {
 	var u *url.URL
 	u, err := url.Parse("https://svcs.ebay.com/services/search/FindingService/v1")
 	if err != nil {
