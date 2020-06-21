@@ -170,7 +170,7 @@ func (e *EBay) findItems(globalID string, keywords string, entriesPerPage int, u
 // FindItemsByKeywords returns items matching the keyword search terms
 func (e *EBay) FindItemsByKeywords(globalID string, keywords string, pageNumber int, entriesPerPage int, binOnly bool) (FindItemsResponse, error) {
 	var response FindItemsResponse
-	url, err := e.BuildSearchURL(globalID, keywords, pageNumber, entriesPerPage, binOnly)
+	url, err := e.buildSearchURL(globalID, keywords, pageNumber, entriesPerPage, binOnly)
 	if err != nil {
 		var response FindItemsResponse
 		return response, err
