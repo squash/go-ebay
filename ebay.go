@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
 	"strconv"
 	"time"
@@ -198,8 +199,8 @@ func (e *EBay) FindItemsByKeywords(globalID string, keywords string, pageNumber 
 }
 
 // FindSoldItems returns sold items by keyword
-func (e *EBay) FindSoldItems(globalID string, keywords string, pageNumber int, entriesPerPage int) (FindCompletedItemsResponse, error) {
-	var response FindCompletedItemsResponse
+func (e *EBay) FindSoldItems(globalID string, keywords string, pageNumber int, entriesPerPage int) (FindItemsResponse, error) {
+	var response FindItemsResponse
 	url, err := e.buildSoldURL(globalID, keywords, pageNumber, entriesPerPage)
 	if err != nil {
 		return response, err
@@ -219,6 +220,7 @@ func (e *EBay) FindSoldItems(globalID string, keywords string, pageNumber int, e
 		}
 		return response, errors.New(em.Error.Message)
 	}
+	log.Println(response)
 	err = xml.Unmarshal([]byte(body), &response)
 	if err != nil {
 		return response, err
