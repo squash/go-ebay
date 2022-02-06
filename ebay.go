@@ -104,7 +104,7 @@ func (e *EBay) buildSoldURL(globalID string, keywords string, pageNumber int, en
 //	filters.Add("itemFilter(0).value(1)", "Unspecified")
 	filters.Add("itemFilter(0).name", "SoldItemsOnly")
 	filters.Add("itemFilter(0).value(0)", "true")
-	return e.buildURL(globalID, keywords, "findItemsByKeyword", pageNumber, entriesPerPage, filters)
+	return e.buildURL(globalID, keywords, "findItemsByKeywords", pageNumber, entriesPerPage, filters)
 }
 
 func (e *EBay) buildSearchURL(globalID string, keywords string, pageNumber int, entriesPerPage int, binOnly bool) (string, error) {
