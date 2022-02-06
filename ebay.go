@@ -98,11 +98,11 @@ func New(applicationID string) *EBay {
 
 func (e *EBay) buildSoldURL(globalID string, keywords string, pageNumber int, entriesPerPage int) (string, error) {
 	filters := url.Values{}
-	filters.Add("itemFilter(0).name", "Condition")
-	filters.Add("itemFilter(0).value(0)", "Used")
-	filters.Add("itemFilter(0).value(1)", "Unspecified")
-	filters.Add("itemFilter(1).name", "SoldItemsOnly")
-	filters.Add("itemFilter(1).value(0)", "true")
+//	filters.Add("itemFilter(0).name", "Condition")
+//	filters.Add("itemFilter(0).value(0)", "Used")
+//	filters.Add("itemFilter(0).value(1)", "Unspecified")
+	filters.Add("itemFilter(0).name", "SoldItemsOnly")
+	filters.Add("itemFilter(0).value(0)", "true")
 	return e.buildURL(globalID, keywords, "findCompletedItems", pageNumber, entriesPerPage, filters)
 }
 
