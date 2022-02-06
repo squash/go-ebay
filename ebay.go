@@ -3,6 +3,7 @@ package ebay
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -121,7 +122,7 @@ func (e *EBay) buildSearchURL(globalID string, keywords string, pageNumber int, 
 func (e *EBay) buildURL(globalID string, keywords string, operationName string, pageNumber int, entriesPerPage int, filters url.Values) (string, error) {
 	var u *url.URL
 	u, err := url.Parse("https://svcs.ebay.com/services/search/FindingService/v1")
-	if err != nil {
+	if err != nil {	
 		return "", err
 	}
 	params := url.Values{}
@@ -212,6 +213,7 @@ func (e *EBay) FindSoldItems(globalID string, keywords string, pageNumber int, e
 	if statusCode != 200 {
 		var em ErrorMessage
 		err = xml.Unmarshal([]byte(body), &em)
+		fmt.Printf("%#v\n", body)
 		if err != nil {
 			return response, err
 		}
